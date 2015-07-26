@@ -1,12 +1,12 @@
 // ==UserScript==
 // @name         MassiveMusicQuiz
 // @namespace    https://github.com/nemolovich
-// @version      0.1
-// @description  Get preloaded musics and play it.
+// @version      0.2
+// @description  Get preloaded musics.
 // @author       Nemolovich
 // @match        http://fr.massivemusicquiz.com/games
 // @grant        none
-// require       http://fr.massivemusicquiz.com/javascripts/jquery.js
+// require      http://fr.massivemusicquiz.com/javascripts/jquery.js
 // ==/UserScript==
 
 // --------------------------------------------------------
@@ -31,10 +31,79 @@ var AUTO_UPDATE = true;                           // Start and stop track automa
 var UPDATE_INTERVAL = 500;                        // Check for updates interval time (ms).
 var DEBUG = 3;                                    // Debug level (0: ERROR, 1: WARNING, 2: INFO, 3: DEBUG).
 
+// =========== CSS ====================
+var CSS="audio {\n" + 
+"	background-color: rgba(0,0,0,0.1);\n" + 
+"	height: 20px;\n" + 
+"	width:  200px;\n" + 
+"	padding: 0;\n" + 
+"	margin: 0;\n" + 
+"	margin-top: -10px;\n" + 
+"}\n" + 
+"\n" + 
+"audio::-webkit-media-controls-panel {\n" + 
+"	padding: 0;\n" + 
+"	margin: 0;\n" + 
+"	margin-top:	10px;\n" + 
+"	height: 20px;\n" + 
+"	width:  200px;\n" + 
+"	background-color: rgba(0,0,0,0.2);\n" + 
+"	background-position: top;\n" + 
+"}\n" + 
+"\n" + 
+"audio::-webkit-media-controls-timeline-container,\n" + 
+"audio::-webkit-media-controls-volume-slider-container {\n" + 
+"	height: 2px;\n" + 
+"	width:  10px;\n" + 
+"}\n" + 
+"\n" + 
+"audio::-webkit-media-controls-current-time-display,\n" + 
+"audio::-webkit-media-controls-time-remaining-display {\n" + 
+"	font-size: 7pt;\n" + 
+"	height: 10px;\n" + 
+"	width:  10px;\n" + 
+"	padding: 0;\n" + 
+"	margin: 0;\n" + 
+"	margin-bottom: 20px;\n" + 
+"	margin-right: 10px;\n" + 
+"}\n" + 
+"\n" + 
+"audio::-webkit-media-controls-timeline,\n" + 
+"audio::-webkit-media-controls-volume-slider\n" + 
+"{\n" + 
+"	cursor: pointer;\n" + 
+"	height: 2px;\n" + 
+"	margin: 0 5px 0 0;\n" + 
+"	border-radius: 10px;\n" + 
+"}\n" + 
+"\n" + 
+"audio::-webkit-media-controls-timeline {\n" + 
+"	width:  80px;\n" + 
+"	max-width: 80px;\n" + 
+"}\n" + 
+"\n" + 
+"audio::-webkit-media-controls-volume-slider {\n" + 
+"	width:  60px;\n" + 
+"	max-width: 60px;\n" + 
+"}\n" + 
+"\n" + 
+"audio::-webkit-media-controls-mute-button,\n" + 
+"audio::-webkit-media-controls-play-button,\n" + 
+"audio::-webkit-media-controls-seek-back-button,\n" + 
+"audio::-webkit-media-controls-seek-forward-button,\n" + 
+"audio::-webkit-media-controls-fullscreen-button,\n" + 
+"audio::-webkit-media-controls-rewind-button,\n" + 
+"audio::-webkit-media-controls-return-to-realtime-button,\n" + 
+"audio::-webkit-media-controls-toggle-closed-captions-button {\n" + 
+"	height: 15px;\n" + 
+"	width:  15px;\n" + 
+"}";
+
 // --------------------------------------------------------
 
 function getNow() {
     var date = new Date();
+    
     return (date.getHours() < 10 ? "0" : "") + date.getHours() + ":" +
         (date.getMinutes() < 10 ? "0" : "") + date.getMinutes() + ":" +
         (date.getSeconds() < 10 ? "0" : "") + date.getSeconds();
@@ -61,7 +130,7 @@ function playMusic() {
     audioTag.play();
     PLAYING = true;
     if (DEBUG > 2) {
-        info('Music started.');
+        info('Preload music started.');
     }
 }
 
@@ -71,7 +140,7 @@ function stopMusic() {
         audioTag.pause();
         PLAYING = false;
         if (DEBUG > 2) {
-            info('Music stopped.');
+            info('Preload music stopped.');
         }
     } else {
         audioTag.currentTime = 0;
@@ -88,15 +157,27 @@ function stopMusic() {
     }
 }
 
+function buildAudioTag(src) {
+    var result = document.createElement('audio');
+    result.id = 'audioTag';
+    result.controls = true;
+    result.style.marginBottom = "3px";
+    result.style.verticalAlign = "bottom";
+    
+    if (src) {
+        result.src = src;
+    }
+    
+    return result;
+}
+
 function updateAudio(url) {
     var audioTag = document.getElementById('audioTag');
     var links = document.getElementById('top-bar').getElementsBySelector('div.links')[0];
 
     links.removeChild(audioTag);
 
-    audioTag = document.createElement('audio');
-    audioTag.id = 'audioTag';
-    audioTag.src = url;
+    audioTag = buildAudioTag(url);
 
     links.insertBefore(audioTag, document.getElementById('autoCheck'));
 
@@ -109,6 +190,9 @@ function getURL(category_id, alternate) {
     new Ajax.Request(url, {method: 'get', onSuccess: function(transport){
         var json = eval('(' + transport.responseText + ')')
         var preloadURL = PREFIX + '/tmp/' + json.preload + '?' + (new Date().getTime());
+        if (DEBUG > 2) {
+            debug('Sound URL: ' + preloadURL);
+        }
         updateAudio(preloadURL);
     }});
 }
@@ -173,8 +257,13 @@ function init() {
     autoCheckLabel.style.borderRight = '1px solid #6f6f6f';
     autoCheckLabel.title = checkTitle;
 
-    var audioTag = document.createElement('audio');
-    audioTag.id='audioTag';
+    var audioTag = buildAudioTag();
+    
+    var head = document.getElementsByTagName('head')[0];
+    var styleTag = document.createElement('style');
+    styleTag.type = 'text/css';
+    styleTag.innerHTML=CSS;
+    head.appendChild(styleTag);
 
     if (DEBUG > 2) {
         debug('Inserting cheat blocks in banner...');
@@ -215,7 +304,7 @@ function checkUpdates() {
     var container = document.getElementById(CONTAINER_ID);
     if (container) {
         var oldV = CONTAINER_VALUE;
-        CONTAINER_VALUE = parreInt(container.innerHTML);
+        CONTAINER_VALUE = parseInt(container.innerHTML);
         if (oldV > CONTAINER_VALUE) {
             if (DEBUG > 2) {
                 info('The music track started');
