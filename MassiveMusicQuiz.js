@@ -130,7 +130,7 @@ function playMusic() {
     audioTag.play();
     PLAYING = true;
     if (DEBUG > 2) {
-        info('Preload music started.');
+        debug('Preload music started.');
     }
 }
 
@@ -140,7 +140,7 @@ function stopMusic() {
         audioTag.pause();
         PLAYING = false;
         if (DEBUG > 2) {
-            info('Preload music stopped.');
+            debug('Preload music stopped.');
         }
     } else {
         audioTag.currentTime = 0;
@@ -152,7 +152,7 @@ function stopMusic() {
             }
         }
         if (DEBUG > 2) {
-            info('Music reset.');
+            debug('Preload music reset.');
         }
     }
 }
