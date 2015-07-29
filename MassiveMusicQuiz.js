@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MassiveMusicQuiz
 // @namespace    https://github.com/nemolovich
-// @version      0.3
+// @version      0.3.1
 // @description  Get preloaded musics.
 // @author       Nemolovich
 // @match        http://fr.massivemusicquiz.com/games
@@ -15,7 +15,7 @@
 var NB_TITLES = 0;                                // Number of passed titles.
 var TITLES_ID = 'past_songs_body';                // Title table element ID.
 
-var CONTAINER_ID = 'round_number';            // Container element ID to check for start track.
+var CONTAINER_ID = 'round_number';                // Container element ID to check for start track.
 var CONTAINER_VALUE = -1;                         // Container value.
 
 // =========== GLOBAL =================
@@ -233,6 +233,9 @@ function init() {
     COUNTDOWN.id='countdown';
     COUNTDOWN.style.color='#FFFFFF';
     COUNTDOWN.style.fontWeight ='bold';
+    COUNTDOWN.style.textAlign = 'right';
+    COUNTDOWN.style.width = '20px';
+    COUNTDOWN.style.display = 'inline-block';
     COUNTDOWN.innerHTML = '-1';
 
     divTimer.appendChild(timerSpan);
@@ -245,6 +248,8 @@ function init() {
     divTimer.style.borderRight = '1px solid #6f6f6f';
     divTimer.style.paddingLeft = '8px';
     divTimer.style.borderLeft = '1px solid #373737';
+    divTimer.style.textAlign = 'right';
+    divTimer.style.width = '60px';
 
     var playButton = document.createElement('a');
     playButton.id = 'playButton';
