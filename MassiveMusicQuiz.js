@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MassiveMusicQuiz
 // @namespace    https://github.com/nemolovich
-// @version      0.3.1
+// @version      0.3.2
 // @description  Get preloaded musics.
 // @author       Nemolovich
 // @match        http://fr.massivemusicquiz.com/games
@@ -21,7 +21,7 @@ var CONTAINER_VALUE = -1;                         // Container value.
 // =========== GLOBAL =================
 var START_DELAY = 1500;                           // Deplay to start script (ms).
 var PREFIX = 'http://fr.massivemusicquiz.com';    // URL prefix (host). 
-var DEFAULT_CATEGORY = 77;                        // Default game category.
+var DEFAULT_CATEGORY = 77;                        // Default game category (77 = "Facile").
 var CURR_CATEGORY;                                // Current category.
 var LISTENER;                                     // Interval object to check for updates.
 var PLAYING = false;                              // Define if player plays music.
@@ -213,6 +213,7 @@ function init() {
         debug('Current category is "' + category + '" [' + CURR_CATEGORY + '].');
     } else if(!category || !CURR_CATEGORY) {
         warn('Category could not be found. Using id ' + CURR_CATEGORY + '.');
+        CURR_CATEGORY = DEFAULT_CATEGORY;
     }
 
     if (!links) {
@@ -332,7 +333,7 @@ function checkUpdates() {
             if (DEBUG > 2) {
                 info('The music track changed.');
             }
-            getURL(DEFAULT_CATEGORY);
+            getURL(CURR_CATEGORY);
         }
     }
     var container = document.getElementById(CONTAINER_ID);
@@ -399,7 +400,7 @@ function startScript() {
     }
 
     init();
-    getURL(DEFAULT_CATEGORY);
+    getURL(CURR_CATEGORY);
 
     if (DEBUG > 1) {
         info('Cheat script started!');
