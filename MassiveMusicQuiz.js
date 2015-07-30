@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MassiveMusicQuiz
 // @namespace    https://github.com/nemolovich
-// @version      0.3.2
+// @version      0.3.3
 // @description  Get preloaded musics.
 // @author       Nemolovich
 // @match        http://fr.massivemusicquiz.com/games
@@ -27,6 +27,9 @@ var LISTENER;                                     // Interval object to check fo
 var PLAYING = false;                              // Define if player plays music.
 var TIMER;                                        // Flash element timer.
 var COUNTDOWN;                                    // Timer information for users.
+var INPUT_RESULT;                                 // Result input.
+var INPUT_WRAPPER;                                // Result input container.
+var INPUT_BUTTON;                                 // Result input button.
 
 // =========== USER ===================
 var AUTO_UPDATE = true;                           // Start and stop track automatically.
@@ -216,6 +219,11 @@ function init() {
         CURR_CATEGORY = DEFAULT_CATEGORY;
     }
 
+    INPUT_RESULT = jQuery('#guess');
+    INPUT_WRAPPER = INPUT_RESULT.parent();
+    INPUT_BUTTON = jQuery('#send-button');
+    INPUT_WRAPPER.attr('style', '-webkit-box-shadow: inset 1px 5px 15px #AA4444;');
+
     if (!links) {
         error('Can not retreive banner div!');
         return;
@@ -334,6 +342,7 @@ function checkUpdates() {
                 info('The music track changed.');
             }
             getURL(CURR_CATEGORY);
+            INPUT_WRAPPER.attr('style', '-webkit-box-shadow: inset 1px 5px 15px #AA4444;');
         }
     }
     var container = document.getElementById(CONTAINER_ID);
@@ -356,18 +365,29 @@ function checkUpdates() {
                 }
                 countDown(duration);
             }
+            INPUT_WRAPPER.attr('style', '-webkit-box-shadow: inset 1px 5px 15px #999999;');
         }
     }
 }
 
 function countDown(n) {
     COUNTDOWN.innerHTML=n;
+    INPUT_BUTTON.val(n);
     COUNTDOWN.style.color='#FFFFFF';
+    INPUT_BUTTON.css('background-color', 'FF9700');
+    INPUT_BUTTON.css('background-image', 'linear-gradient(#FFA950, #FF8506)');
     if (n >= 0) {
         if (n < 10) {
             COUNTDOWN.style.color='#FF0000';
+            INPUT_BUTTON.css('background-color', 'DD5555');
+            INPUT_BUTTON.css('background-image', 'linear-gradient(#DD5555, #AA1111)');
         }
         setTimeout(function() {countDown(n-1);}, 1000);
+    } else {
+        COUNTDOWN.innerHTML='0';
+        INPUT_BUTTON.val('0');
+        INPUT_BUTTON.css('background-color', '#999999');
+        INPUT_BUTTON.css('background-image', 'linear-gradient(#BBBBBB, #999999)');
     }
 }
 
